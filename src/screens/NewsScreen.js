@@ -1,16 +1,10 @@
 import React, { useContext, useState } from "react";
-import {
-    Dimensions,
-    Text,
-    View,
-    StyleSheet,
-    TouchableOpacity,
-} from "react-native";
+import { Dimensions, StyleSheet, View } from "react-native";
 import Carousel from "react-native-snap-carousel";
 import { NewsContext } from "../context/Context";
 import SingleNews from "../components/SingleNews";
 
-const NewsScreen = () => {
+const NewsScreen = ({ navigation }) => {
     const {
         news: { articles },
         darkTheme,
@@ -19,8 +13,15 @@ const NewsScreen = () => {
     const [activeIndex, setActiveIndex] = useState();
 
     const windowHeight = Dimensions.get("window").height;
-
     const windowWidth = Dimensions.get("window").width;
+
+    const handleSwipeRight = (item) => {
+        if (item && item.url) { // Check if item and item.url are defined
+            navigation.navigate("SourceNews", { url: item.url }); // Navigate to SourceNewsScreen with the url parameter
+        } else {
+            console.error("URL not available for this article.");
+        }
+    };
 
     return (
         <View style={styles.carousel}>
@@ -34,7 +35,12 @@ const NewsScreen = () => {
                     itemHeight={windowHeight}
                     vertical={true}
                     renderItem={({ item, index }) => (
-                        <SingleNews item={item} index={index} darkTheme={darkTheme} />
+                        <SingleNews
+                            item={item}
+                            index={index}
+                            darkTheme={darkTheme}
+                            onPress={() => handleSwipeRight(item)}
+                        />
                     )}
                     onSnapToItem={(index) => setActiveIndex(index)}
                 />

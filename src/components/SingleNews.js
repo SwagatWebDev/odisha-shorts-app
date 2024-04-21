@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         paddingBottom: 10,
     },
-    content: { fontSize: 18, paddingBottom: 10 },
+    content: { fontSize: 20, paddingBottom: 10 },
     footer: {
         height: 80,
         width: windowWidth,

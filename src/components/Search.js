@@ -7,6 +7,8 @@ import {
     TextInput,
     TouchableOpacity,
     View,
+    ScrollView,
+    Keyboard,
 } from "react-native";
 import { NewsContext } from "../context/Context";
 import SingleNews from "./SingleNews";
@@ -21,8 +23,10 @@ const Search = () => {
     const [searchResults, setSearchResults] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [currentNews, setCurrentNews] = useState();
+    const [searchText, setSearchText] = useState("");
 
     const handleSearch = (text) => {
+        setSearchText(text);
         if (!text) {
             setSearchResults([]);
             return;
@@ -35,19 +39,37 @@ const Search = () => {
         setCurrentNews(n);
     };
 
+    const clearSearch = () => {
+        setSearchText("");
+        setSearchResults([]);
+        Keyboard.dismiss();
+    };
+
     return (
-        <View style={{ width: "100%", position: "relative" }}>
-            <TextInput
-                style={{
-                    ...styles.search,
-                    backgroundColor: darkTheme ? "black" : "lightgrey",
-                    color: darkTheme ? "white" : "black",
-                }}
-                onChangeText={(text) => handleSearch(text)}
-                placeholder="Search for news"
-                placeholderTextColor={darkTheme ? "white" : "grey"}
-            />
-            <View style={styles.searchResults}>
+        <View style={{ width: "110%", position: "relative" }}>
+            <View style={styles.searchContainer}>
+                <Entypo name="magnifying-glass" size={24} color={darkTheme ? "#6495ED" : "#000"} style={styles.searchIcon} />
+                <TextInput
+                    style={{
+                        ...styles.search,
+                        backgroundColor: darkTheme ? "white" : "white", // Light background color when darkTheme is false
+                        color: darkTheme ? "white" : "black",
+                    }}
+                    onChangeText={(text) => handleSearch(text)}
+                    placeholder="Search for news"
+                    placeholderTextColor={darkTheme ? "black" : "black"}
+                    value={searchText}
+                />
+                {searchText !== "" && (
+                    <TouchableOpacity onPress={clearSearch} style={styles.clearButton}>
+                        <Entypo name="circle-with-cross" size={20} color="#000" />
+                    </TouchableOpacity>
+                )}
+            </View>
+            <ScrollView
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={styles.searchResultsContainer}
+            >
                 {searchResults.slice(0, 10).map((n) => (
                     <TouchableOpacity
                         key={n.title}
@@ -65,24 +87,18 @@ const Search = () => {
                         </Text>
                     </TouchableOpacity>
                 ))}
-            </View>
-
+            </ScrollView>
             <Modal
                 animationType="slide"
                 transparent={true}
                 visible={modalVisible}
                 onRequestClose={() => {
-                    setModalVisible(!modalVisible);
+                    setModalVisible(false);
                 }}
             >
                 <TouchableOpacity
-                    onPress={() => setModalVisible(!modalVisible)}
-                    style={{
-                        position: "absolute",
-                        zIndex: 1,
-                        right: 0,
-                        margin: 20,
-                    }}
+                    onPress={() => setModalVisible(false)}
+                    style={styles.closeButton}
                 >
                     <Entypo name="circle-with-cross" size={30} color="white" />
                 </TouchableOpacity>
@@ -97,23 +113,42 @@ const Search = () => {
 export default Search;
 
 const styles = StyleSheet.create({
-    search: {
-        paddingVertical: 10,
-        paddingHorizontal: 15,
+    searchContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "white",
         borderRadius: 10,
-        fontSize: 15,
+        marginHorizontal: 15,
         marginBottom: 15,
+        paddingHorizontal: 10,
     },
-    searchResults: {
-        position: "absolute",
-        zIndex: 1,
-        top: 50,
+    searchIcon: {
+        marginRight: 10,
+    },
+    search: {
+        flex: 1,
+        fontSize: 16,
+        paddingVertical: 10,
+    },
+    clearButton: {
+        padding: 5,
+    },
+    searchResultsContainer: {
+        paddingTop: 10,
+        paddingHorizontal: 10,
     },
     singleResult: {
         borderRadius: 5,
         padding: 10,
-        margin: 0.5,
+        marginVertical: 5,
         shadowColor: "black",
         elevation: 5,
+    },
+    closeButton: {
+        position: "absolute",
+        zIndex: 1,
+        top: 20,
+        right: 20,
     },
 });
